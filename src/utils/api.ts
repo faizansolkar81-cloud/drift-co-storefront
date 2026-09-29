@@ -7,6 +7,7 @@
 // =============================================================
 
 const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || "http://localhost:8000";
+const API_TIMEOUT_MS = Number((import.meta as any).env?.VITE_API_TIMEOUT_MS) || 1500;
 
 // ---- Token management ----
 // The JWT token is stored in localStorage after login.
@@ -53,7 +54,7 @@ async function apiFetch<T>(
   }
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 1500);
+  const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
 
   try {
     const response = await fetch(`${API_BASE_URL}${path}`, {
