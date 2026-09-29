@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: drift-co-storefront-api-faizansolkar81-cloud
+    runtime: python
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.14
+      - key: DB_ENGINE
+        value: sqlite
+      - key: DB_PATH
+        value: /tmp/drift_and_co.db
+      - key: SEED_DEMO_ACCOUNTS
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://drift-co-storefront-faizansolkar81-cloud.onrender.com
+
+  - type: web
+    name: drift-co-storefront-faizansolkar81-cloud
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://drift-co-storefront-api-faizansolkar81-cloud.onrender.com
+      - key: VITE_API_TIMEOUT_MS
+        value: "120000"

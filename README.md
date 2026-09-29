@@ -151,9 +151,15 @@ project/
 > VITE_API_URL=https://your-api-domain.com
 > ```
 
+### Render Showcase Deployment
+
+The root `render.yaml` defines a free Render static site and FastAPI web service. To deploy, sign in to Render, choose **New > Blueprint**, connect this GitHub repository, and apply the Blueprint.
+
+This configuration is for a public demo, not production customer data. The free API service uses temporary SQLite storage; registered users, carts, and orders can be lost when the service sleeps, restarts, or redeploys. Free services may take about a minute to wake after inactivity. The hosted demo also disables the seeded admin and demo accounts. Use a durable database and private admin credentials before using the store for real transactions.
+
 ---
 
-## Demo Accounts
+## Demo Accounts (Local Only)
 
 | Role  | Email                  | Password   |
 |-------|------------------------|------------|
