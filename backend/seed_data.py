@@ -4,6 +4,8 @@
 # an admin user, and sample reviews on first startup.
 # Run by calling seed_database() from main.py.
 # =============================================================
+import os
+
 from database import SessionLocal
 from models import Category, User, Product, Review
 from auth_utils import hash_password
@@ -67,24 +69,21 @@ def seed_database():
         if db.query(Product).count() > 0:
             return
 
-        # ---- Create admin user ----
-        admin = User(
-            name="Admin",
-            email="admin@driftandco.com",
-            password=hash_password("admin123"),
-            role="admin",
-        )
-        db.add(admin)
-
-        # ---- Create demo user ----
-        demo_user = User(
-            name="Rahul Sharma",
-            email="rahul@example.com",
-            password=hash_password("pass123"),
-            role="user",
-        )
-        db.add(demo_user)
-        db.flush()  # flush to get IDs
+        if os.getenv("SEED_DEMO_ACCOUNTS", "true").lower() in {"1", "true", "yes"}:
+            admin = User(
+                name="Admin",
+                email="admin@driftandco.com",
+                password=hash_password("admin123"),
+                role="admin",
+            )
+            demo_user = User(
+                name="Rahul Sharma",
+                email="rahul@example.com",
+                password=hash_password("pass123"),
+                role="user",
+            )
+            db.add_all([admin, demo_user])
+            db.flush()
 
         # ---- Create categories ----
         # Categories are shared across genders; product gender is stored separately.
@@ -130,7 +129,7 @@ def seed_database():
             db.add(review)
 
         db.commit()
-        print(f"Seed data inserted: {len(SEED_PRODUCTS)} products, {len(SEED_REVIEWS)} reviews, 1 admin user")
+        print(f"Seed data inserted: {len(SEED_PRODUCTS)} products and {len(SEED_REVIEWS)} reviews")
     except Exception as e:
         db.rollback()
         print(f"Seed error: {e}")
