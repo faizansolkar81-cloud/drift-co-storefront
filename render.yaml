@@ -29,6 +29,6 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
-        value: https://drift-co-storefront-api-faizansolkar81-cloud.onrender.com
+        value: https://drift-co-storefront-api-faizansolkar81.onrender.com
       - key: VITE_API_TIMEOUT_MS
         value: "120000"
