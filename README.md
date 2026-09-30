@@ -155,7 +155,7 @@ project/
 
 The root `render.yaml` defines a free Render static site and FastAPI web service. To deploy, sign in to Render, choose **New > Blueprint**, connect this GitHub repository, and apply the Blueprint.
 
-This configuration is for a public demo, not production customer data. The free API service uses temporary SQLite storage; registered users, carts, and orders can be lost when the service sleeps, restarts, or redeploys. Free services may take about a minute to wake after inactivity. The hosted demo also disables the seeded admin and demo accounts. Use a durable database and private admin credentials before using the store for real transactions.
+This configuration is for a public demo, not production customer data. By default, the free API service uses temporary SQLite storage; registered users, carts, and orders can be lost when the service restarts or redeploys. To use managed PostgreSQL, set `DATABASE_URL` as a secret environment variable on the Render API service. This takes precedence over `DB_ENGINE` and `DB_PATH`; do not commit a real connection URL. Free services may take about a minute to wake after inactivity, and free database plans have storage and usage limits. The hosted demo disables the seeded admin and demo accounts. Use private admin credentials and backups before real transactions.
 
 ---
 

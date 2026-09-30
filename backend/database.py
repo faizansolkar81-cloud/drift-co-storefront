@@ -6,14 +6,25 @@
 import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
+from sqlalchemy.engine import make_url
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 # Load environment variables from .env file
 load_dotenv()
 
 DB_ENGINE = os.getenv("DB_ENGINE", "sqlite").lower()
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-if DB_ENGINE == "sqlite":
+if DATABASE_URL:
+    database_url = make_url(DATABASE_URL)
+    if database_url.get_backend_name() not in {"postgres", "postgresql"}:
+        raise ValueError("DATABASE_URL must use PostgreSQL")
+    if database_url.drivername in {"postgres", "postgresql"}:
+        database_url = database_url.set(drivername="postgresql+psycopg")
+    DATABASE_URL = database_url.render_as_string(hide_password=False)
+    DB_ENGINE = "postgresql"
+    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+elif DB_ENGINE == "sqlite":
     DB_PATH = os.getenv("DB_PATH", os.path.join(os.path.dirname(__file__), "drift_and_co.db"))
     DATABASE_URL = f"sqlite:///{DB_PATH}"
     engine = create_engine(
@@ -21,7 +32,7 @@ if DB_ENGINE == "sqlite":
         connect_args={"check_same_thread": False},
         pool_pre_ping=True,
     )
-else:
+elif DB_ENGINE == "mysql":
     # Read database settings from environment
     DB_HOST = os.getenv("DB_HOST", "localhost")
     DB_PORT = os.getenv("DB_PORT", "3306")
@@ -36,6 +47,8 @@ else:
     # Create the SQLAlchemy engine
     # pool_pre_ping checks connections before using them (avoids stale connection errors)
     engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+else:
+    raise ValueError(f"Unsupported DB_ENGINE: {DB_ENGINE}")
 
 # Session factory — each request gets its own session
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -49,7 +62,7 @@ def init_database():
     Create the database if needed, then create all tables.
     Falls back to SQLite when that engine is selected.
     """
-    if DB_ENGINE == "sqlite":
+    if DB_ENGINE in {"sqlite", "postgresql"}:
         Base.metadata.create_all(bind=engine)
         return
 
